@@ -43,7 +43,21 @@ type EventTx = tokio::sync::watch::Sender<String>;
 /// Tap event rx
 type EventRx = tokio::sync::watch::Receiver<String>;
 
-/// Poll pisugar status
+
+///------------------------------------------------------------------
+/// Poll pisugar status, sends poll to tx
+///------------------------------------------------------------------
+fn get_button_press(core: &mut PiSugarCore) -> String {
+    if let Ok(Some(tap_type)) = core.poll(Instant::now()) {
+       tap_type.to_string()
+    } else { 
+       "none".to_string()
+    } 
+}
+
+///------------------------------------------------------------------
+/// Poll pisugar status, broadcast tap_type 
+///------------------------------------------------------------------
 fn poll_pisugar_status(core: &mut PiSugarCore, tx: &EventTx) {
     log::debug!("Polling state");
     let now = Instant::now();
@@ -95,6 +109,7 @@ fn handle_request(core: Arc<Mutex<PiSugarCore>>, req: &str) -> String {
                             "alarm_repeat" => Ok(core.config().auto_wake_repeat.to_string()),
                             "safe_shutdown_level" => Ok(core.config().auto_shutdown_level.to_string()),
                             "safe_shutdown_delay" => Ok(core.config().auto_shutdown_delay.to_string()),
+                            "button_press" => Ok(get_button_press(&mut core)), 
                             "button_enable" => {
                                 if parts.len() > 2 {
                                     let enable = match parts[2].as_str() {

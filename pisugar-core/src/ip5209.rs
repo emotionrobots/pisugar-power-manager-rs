@@ -392,9 +392,11 @@ impl Battery for IP5209Battery {
 
         let gpio_value = self.ip5209.read_gpio_tap()?;
         let tapped = if self.model.led_amount() == 2 {
-            gpio_value & 0b0000_0010 != 0 // GPIO1 in 2-led
-        } else {
             gpio_value & 0b0001_0000 != 0 // GPIO4 in 4-led
+            //gpio_value & 0b0000_0010 != 0 // GPIO1 in 2-led
+        } else {
+            gpio_value & 0b0000_0010 != 0 // GPIO1 in 2-led
+            //gpio_value & 0b0001_0000 != 0 // GPIO4 in 4-led
         };
 
         if self.tap_history.len() >= self.tap_history.capacity() {
